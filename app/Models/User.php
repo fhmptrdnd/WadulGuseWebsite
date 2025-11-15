@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active',
     ];
 
     /**
@@ -32,14 +33,21 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
 
+    public function deactive()
+    {
+        $this->update(['is_active' => false]);
+    }
     /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 }
