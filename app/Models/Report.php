@@ -16,7 +16,17 @@ class Report extends Model
         'description',
         'photo',
         'status',
+        'feedback',
         'is_active',
+    ];
+
+    /**
+     * Cast atribut ke boolean biar ga return string
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function user()

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Auth\DashboardController;
 
 
 Route::middleware('guest')->group(function () {
@@ -36,7 +37,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 
     // Report Submission
+    Route::get('/reports/create', [ReportController::class, 'index'])->name('reports.create');
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+});
+
+Route::middleware('auth')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Admin: edit n feedback
+    Route::put('/reports/{report}', [DashboardController::class, 'update'])->name('reports.update');
+
+    // User: hapus laporan
+    Route::delete('/reports/{report}', [DashboardController::class, 'destroy'])->name('reports.destroy');
+
+    Route::get('/reports/{report}/edit', [DashboardController::class, 'edit'])->name('reports.edit');
 });
 
 Route::get('/', function () {

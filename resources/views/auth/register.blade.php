@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Form Pendaftaran</title>
 </head>
 <body>
     <h1>Form Pendaftaran</h1>
@@ -21,8 +21,22 @@
         @csrf
 
         <div>
-            <label for="name">Nama:</label><br>
-            <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus>
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" value="{{ old('username') }}" required autofocus>
+        </div>
+
+        <br>
+
+        <div>
+            <label for="nik">NIK (16 Digit):</label><br>
+            <input type="text" id="nik" name="nik" value="{{ old('nik') }}" required>
+        </div>
+
+        <br>
+
+        <div>
+            <label for="name">Nama Lengkap:</label><br>
+            <input type="text" id="name" name="name" value="{{ old('name') }}" required>
         </div>
 
         <br>
@@ -30,6 +44,20 @@
         <div>
             <label for="email">Email:</label><br>
             <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+        </div>
+
+        <br>
+
+        <div>
+            <label for="nomor_telepon">Nomor Telepon:</label><br>
+            <input type="text" id="nomor_telepon" name="nomor_telepon" value="{{ old('nomor_telepon') }}" required>
+        </div>
+
+        <br>
+
+        <div>
+            <label for="alamat">Alamat:</label><br>
+            <textarea id="alamat" name="alamat" required>{{ old('alamat') }}</textarea>
         </div>
 
         <br>

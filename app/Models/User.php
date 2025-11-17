@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Report;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -21,6 +23,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'username',
+        'nik',
+        'nomor_telepon',
+        'alamat',
+        'role',
         'is_active',
     ];
 
@@ -33,7 +40,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-    public function reports()
+
+    public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
     }
@@ -49,5 +57,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'password' => 'hashed',
+        'is_active' => 'boolean'
     ];
 }

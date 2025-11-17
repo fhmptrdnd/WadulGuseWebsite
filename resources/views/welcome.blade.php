@@ -14,7 +14,7 @@
             </div>
         @endif
 
-        <h1>Aplikasi Sederhana</h1>
+        <h1>Wadul Guse</h1>
 
         @if (Route::has('login'))
             <div class="action-buttons">
