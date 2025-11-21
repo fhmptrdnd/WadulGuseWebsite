@@ -63,6 +63,7 @@
         <div class="report-card">
             <h3>Laporan #{{ $report->id }} - {{ $report->title }}</h3>
             <p>Dibuat Oleh: {{ $report->user->name }} | NIK: {{ $report->user->nik }}</p>
+            <p>Alamat: {{ $report->location }}</p>
             <p>Status Saat Ini: <strong>{{ strtoupper($report->status) }}</strong></p>
 
             <p>Deskripsi: {{ $report->description }}</p>
@@ -75,7 +76,6 @@
                 @method('PUT')
 
                 <label for="status_{{ $report->id }}">Ubah Status:</label>
-                <!-- PERBAIKAN: Isi Opsi Status dan Tentukan yang terpilih (selected) -->
                 <select id="status_{{ $report->id }}" name="status" required>
                     <option value="pending" {{ $report->status === 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="verified" {{ $report->status === 'verified' ? 'selected' : '' }}>Terverifikasi</option>
