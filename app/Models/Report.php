@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Report extends Model
 {
@@ -18,6 +19,13 @@ class Report extends Model
         'status',
         'feedback',
         'is_active',
+        // OPD Things
+        'latitude', 
+        'longitude',
+        'prioritas',
+        'ditangani_oleh',
+        'opd_id',
+        'keterangan_admin', 
     ];
 
     /**
@@ -32,5 +40,16 @@ class Report extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function opd(): BelongsTo
+    {
+        return $this->belongsTo(KategoriOpd::class, 'opd_id', 'opd_id');
+    }
+
+    // Admin/User yang menangani (ditangani_oleh)
+    public function handler(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'ditangani_oleh');
     }
 }
