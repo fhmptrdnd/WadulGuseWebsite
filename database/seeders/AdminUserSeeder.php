@@ -20,7 +20,7 @@ class AdminUserSeeder extends Seeder
         User::create([
             'name' => 'Admin Utama',
             'username' => 'adminwadul1',
-            'email' => 'adminwadulguse@gmail.com',
+            'email' => 'rhespatyrio@gmail.com',
             'password' => Hash::make('Admin123'),
             'nik' => '3509001122334455',
             'nomor_telepon' => '081234567890',

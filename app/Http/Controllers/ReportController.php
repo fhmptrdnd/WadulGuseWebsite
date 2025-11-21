@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\ReportStatusUpdated;
 
 class ReportController extends Controller
 {
@@ -35,7 +36,7 @@ class ReportController extends Controller
             $filepath = $request->file('photo')->store('reports/photos', 'public');
         }
 
-        // 3. Simpan Laporan ke Database (Lebih aman)
+        // 3. Simpan Laporan ke Database
         $report = Report::create([
             'user_id' => Auth::id(),
             'title' => $validatedData['title'],
@@ -55,5 +56,28 @@ class ReportController extends Controller
 
 
         return redirect()->route('dashboard')->with('success', 'Laporan Anda berhasil dikirim! Admin telah menerima notifikasi.');
+    }
+
+    public function update(Request $request, Report $report)
+    {
+        // 1. Validasi Input Admin
+        $validatedData = $request->validate([
+            'status' => 'required|in:pending,verified,on_progress,done,rejected',
+            'feedback' => 'nullable|string',
+        ]);
+
+        // 2. Perbarui Laporan
+        $report->update([
+            'status' => $validatedData['status'],
+            'feedback' => $validatedData['feedback'],
+        ]);
+
+        // 3. Kirim Notifikasi ke User
+        if ($report->user) {
+            $report->user->notify(new ReportStatusUpdated($report));
+        }
+
+        // 4. Redirect Admin kembali ke dashboard
+        return redirect()->route('dashboard')->with('success', 'Status laporan #' . $report->id . ' berhasil diperbarui dan notifikasi telah dikirim ke pengguna.');
     }
 }

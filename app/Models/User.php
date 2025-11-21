@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
+    use Notifiable;
     use HasApiTokens, HasFactory, Notifiable;
 
     /**

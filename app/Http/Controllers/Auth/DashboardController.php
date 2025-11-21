@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\ReportStatusUpdated;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -37,27 +38,78 @@ class DashboardController extends Controller
      */
     public function update(Request $request, Report $report)
     {
-        // 1. Validasi Hak Akses (Hanya Admin)
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Akses ditolak.');
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            $request->validate([
+                'status' => ['required', 'in:pending,verified,on_progress,done,rejected'],
+                'feedback' => ['nullable', 'string'],
+            ]);
+
+            $report->update($request->only('status', 'feedback'));
+
+            // Kirim Notifikasi
+            $report->user->notify(new ReportStatusUpdated($report));
+
+            return redirect()->route('dashboard')->with('success', 'Laporan berhasil diperbarui dan notifikasi dikirim.');
         }
 
-        // 2. Validasi Input Admin
-        $request->validate([
-            'status' => ['required', 'in:pending,verified,on_progress,done,rejected'],
-            'feedback' => ['nullable', 'string'],
-        ]);
+        elseif (Auth::id() === $report->user_id && $report->status === 'pending') {
 
-        // 3. Simpan Perubahan
-        $report->status = $request->status;
-        $report->feedback = $request->feedback;
-        $report->save();
+            // 1. Validasi Input User
+            $validatedData = $request->validate([
+                'title' => 'required|string|max:255',
+                'category' => 'required|string',
+                'location' => 'required|string',
+                'description' => 'required|string',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5000',
+            ]);
 
-        // 4. Kirim Notifikasi kepada Pemilik Laporan
-        $report->user->notify(new ReportStatusUpdated($report));
+            // 2. Handle Photo Upload/Update
+            $filepath = $report->photo;
+            if ($request->hasFile('photo')) {
+                // Hapus foto lama
+                if ($report->photo && Storage::disk('public')->exists($report->photo)) {
+                    Storage::disk('public')->delete($report->photo);
+                }
+                $filepath = $request->file('photo')->store('reports/photos', 'public');
+            }
 
-        return redirect()->route('dashboard')->with('success', 'Laporan berhasil diperbarui dan notifikasi dikirim.');
+            // 3. Update Data Laporan
+            $report->update(array_merge($validatedData, ['photo' => $filepath]));
+
+            return redirect()->route('dashboard')->with('success', 'Laporan Anda berhasil diubah.');
+
+        }
+
+        else {
+            // Jika bukan Admin, bukan pemilik, atau status sudah berubah
+            abort(403, 'Akses ditolak. Anda tidak diizinkan mengubah laporan ini.');
+        }
     }
+    // public function update(Request $request, Report $report)
+    // {
+    //     // 1. Validasi Hak Akses (Hanya Admin)
+    //     if (Auth::user()->role !== 'admin') {
+    //         abort(403, 'Akses ditolak.');
+    //     }
+
+    //     // 2. Validasi Input Admin
+    //     $request->validate([
+    //         'status' => ['required', 'in:pending,verified,on_progress,done,rejected'],
+    //         'feedback' => ['nullable', 'string'],
+    //     ]);
+
+    //     // 3. Simpan Perubahan
+    //     $report->status = $request->status;
+    //     $report->feedback = $request->feedback;
+    //     $report->save();
+
+    //     // 4. Kirim Notifikasi kepada Pemilik Laporan
+    //     $report->user->notify(new ReportStatusUpdated($report));
+
+    //     return redirect()->route('dashboard')->with('success', 'Laporan berhasil diperbarui dan notifikasi dikirim.');
+    // }
 
     /**
      * User: Menghapus Laporan Sendiri (Hanya jika Status Pending).

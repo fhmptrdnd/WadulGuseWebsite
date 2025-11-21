@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     // Report Submission
     Route::get('/reports/create', [ReportController::class, 'index'])->name('reports.create');
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+    Route::put('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
 });
 
 Route::middleware('auth')->group(function () {

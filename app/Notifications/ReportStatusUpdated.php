@@ -21,7 +21,21 @@ class ReportStatusUpdated extends Notification
     public function via(object $notifiable): array
     {
         // Notifikasi akan disimpan di database (dapat dibaca user/admin)
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $statusText = strtoupper($this->report->status);
+
+        return (new MailMessage)
+                    ->subject('Status Laporan Anda Telah Diperbarui: ' . $this->report->title)
+                    ->greeting("Halo {$notifiable->name},")
+                    ->line('Status laporan Anda ("' . $this->report->title . '") telah diperbarui oleh Administrator.')
+                    ->line('Status baru: **' . $statusText . '**')
+                    ->line('Feedback Admin: ' . ($this->report->feedback ?? 'Tidak ada feedback tambahan.')) // Menambahkan feedback
+                    ->action('Lihat Detail Laporan', url('/dashboard')) // Link ke dashboard user
+                    ->line('Terima kasih!');
     }
 
     public function toArray(object $notifiable): array

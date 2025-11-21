@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             [
                 'name' => 'Fahmi Putra',
-                'email' => 'fahmiputra@gmail.com',
+                'email' => 'fahmiputradendi@gmail.com',
                 'nomor_telepon' => '081359749043',
                 'nik' => '3509123456789101',
                 'alamat' => 'Jl. Kaca Piring',
