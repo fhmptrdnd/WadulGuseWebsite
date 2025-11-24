@@ -20,12 +20,10 @@ class Report extends Model
         'feedback',
         'is_active',
         // OPD Things
-        'latitude', 
-        'longitude',
         'prioritas',
         'ditangani_oleh',
         'opd_id',
-        'keterangan_admin', 
+        'admin_photo', 
     ];
 
     /**

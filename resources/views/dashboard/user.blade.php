@@ -41,10 +41,42 @@
     @forelse ($reports as $report)
         <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 15px;">
             <h3>{{ $report->title }} (Status: {{ strtoupper($report->status) }})</h3>
-            <p>Kategori: {{ $report->category }} | Lokasi: {{ $report->location }}</p>
+            
+            {{--  Prioritas --}}
+            <p>
+                Kategori: {{ $report->category }} | Prioritas: {{ strtoupper($report->prioritas) }} | Lokasi: {{ $report->location }}
+            </p>
+            
+            {{--  OPD yang Menangani --}}
+            <p style="font-weight: bold; margin-top: 5px;">
+                Ditangani Oleh OPD: 
+                {{ $report->opd->nama_opd ?? 'Belum Ditugaskan' }}
+            </p>
+            
+            <hr>
+            
+            <p>Deskripsi Aduan:</p>
+            <p>{{ $report->description }}</p>
+            
+            <p>Foto User: 
+                @if ($report->photo)
+                    <a href="{{ asset('storage/' . $report->photo) }}" target="_blank">Lihat Foto Awal</a>
+                @else
+                    Tidak ada foto.
+                @endif
+            </p>
 
+            {{-- Foto Bukti Admin --}}
+            @if ($report->admin_photo)
+                <p>Foto Bukti Progres Admin: <a href="{{ asset('storage/' . $report->admin_photo) }}" target="_blank">Lihat Bukti</a></p>
+            @endif
+            
+            {{-- Tampilan Feedback Admin --}}
             @if ($report->feedback)
-                <p style="color: blue; font-weight: bold;">Feedback Admin: {{ $report->feedback }}</p>
+                <p style="color: blue; font-weight: bold; margin-top: 10px;">Feedback Admin: </p>
+                <div style="border-left: 3px solid blue; padding-left: 10px; margin-top: -10px;">
+                    {{ $report->feedback }}
+                </div>
             @endif
 
             <div style="margin-top: 10px;">

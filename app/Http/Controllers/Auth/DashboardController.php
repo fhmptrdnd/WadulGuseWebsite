@@ -38,54 +38,66 @@ class DashboardController extends Controller
      */
     public function update(Request $request, Report $report)
     {
-        $user = Auth::user();
-
-        if ($user->role === 'admin') {
-            $request->validate([
-                'status' => ['required', 'in:pending,verified,on_progress,done,rejected'],
-                'feedback' => ['nullable', 'string'],
-            ]);
-
-            $report->update($request->only('status', 'feedback'));
-
-            // Kirim Notifikasi
-            $report->user->notify(new ReportStatusUpdated($report));
-
-            return redirect()->route('dashboard')->with('success', 'Laporan berhasil diperbarui dan notifikasi dikirim.');
+        // 1. Validasi Hak Akses (Admin Only)
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Akses ditolak.');
         }
 
-        elseif (Auth::id() === $report->user_id && $report->status === 'pending') {
+        $status = $request->status;
+        
+        // Validasi input
+        $rules = [
+            'status' => ['required', 'in:pending,verified,on_progress,done,rejected'],
+            'feedback' => ['nullable', 'string'], 
+            'admin_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5000',
+            'opd_id' => ['nullable', 'exists:kategori_opd,opd_id'],
+            'prioritas' => ['nullable', 'in:rendah,sedang,tinggi'],
+        ];
 
-            // 1. Validasi Input User
-            $validatedData = $request->validate([
-                'title' => 'required|string|max:255',
-                'category' => 'required|string',
-                'location' => 'required|string',
-                'description' => 'required|string',
-                'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5000',
-            ]);
-
-            // 2. Handle Photo Upload/Update
-            $filepath = $report->photo;
-            if ($request->hasFile('photo')) {
-                // Hapus foto lama
-                if ($report->photo && Storage::disk('public')->exists($report->photo)) {
-                    Storage::disk('public')->delete($report->photo);
-                }
-                $filepath = $request->file('photo')->store('reports/photos', 'public');
+        // jika status verified, opd_id dan prioritas wajib diisi
+        if ($status === 'verified') {
+            $rules['opd_id'][] = 'required';
+            $rules['prioritas'][] = 'required';
+        } elseif ($status === 'on_progress' || $status === 'done' || $status === 'rejected') {
+            $rules['feedback'][] = 'required'; 
+        }
+        
+        $validatedData = $request->validate($rules);
+        
+        // 2. Upload Foto Admin (Opsional)
+        $filepath = $report->admin_photo; 
+        if ($request->hasFile('admin_photo')) {
+            if ($report->admin_photo) {
+                Storage::disk('public')->delete($report->admin_photo);
             }
-
-            // 3. Update Data Laporan
-            $report->update(array_merge($validatedData, ['photo' => $filepath]));
-
-            return redirect()->route('dashboard')->with('success', 'Laporan Anda berhasil diubah.');
-
+            $filepath = $request->file('admin_photo')->store('reports/admin_proofs', 'public');
         }
 
-        else {
-            // Jika bukan Admin, bukan pemilik, atau status sudah berubah
-            abort(403, 'Akses ditolak. Anda tidak diizinkan mengubah laporan ini.');
+        // 3. Simpan Perubahan
+        $report->status = $validatedData['status'];
+        $report->admin_photo = $filepath;
+
+        // Feedback Admin
+        if (isset($validatedData['feedback'])) { 
+            $report->feedback = $validatedData['feedback']; 
+        } elseif ($status === 'verified' && !isset($validatedData['feedback'])) { 
+            // Khusus status verified, izinkan feedback kosong
+            $report->feedback = null; 
         }
+
+        // OPD & Prioritas hanya diubah pada status 'verified'
+        if ($status === 'verified') {
+            $report->opd_id = $validatedData['opd_id']; 
+            $report->prioritas = $validatedData['prioritas']; 
+            $report->ditangani_oleh = Auth::id(); 
+        } 
+        
+        $report->save();
+
+        // 4. Kirim Notifikasi
+        $report->user->notify(new ReportStatusUpdated($report));
+
+        return redirect()->route('dashboard')->with('success', 'Laporan berhasil diperbarui dan notifikasi dikirim.');
     }
     // public function update(Request $request, Report $report)
     // {

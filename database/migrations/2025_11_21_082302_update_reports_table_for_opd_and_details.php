@@ -12,9 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            // 1. Tambah kolom detail laporan
-            $table->decimal('latitude', 10, 8)->nullable()->after('location');
-            $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
 
             // Ganti tipe data kolom 'status' (dari string biasa menjadi enum di migrasi reports lama)
             $table->string('status')->default('pending')->change();
