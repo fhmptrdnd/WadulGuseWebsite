@@ -23,6 +23,10 @@
         + Buat Laporan Baru
     </a>
 
+    <a href="{{ route('news.index') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+        Lihat Berita
+    </a>
+    
     <hr>
 
     <h2>Notifikasi</h2>

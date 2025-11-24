@@ -44,7 +44,11 @@
         @csrf
         <button type="submit">Logout</button>
     </form>
-
+    
+    <a href="{{ route('admin.news.index') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+        Manajemen Berita
+    </a>
+    
     <hr>
 
     <h2>Laporan Baru</h2>

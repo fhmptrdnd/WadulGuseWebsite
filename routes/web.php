@@ -19,6 +19,9 @@ Route::middleware('guest')->group(function () {
     Route::post('register', [RegisterController::class, 'register']);
 });
 
+Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{slug}', [NewsController::class, 'show'])->name('news.show');
+
 Route::middleware('auth')->group(function () {
     // Logout
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
@@ -40,6 +43,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/create', [ReportController::class, 'index'])->name('reports.create');
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
     Route::put('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
+});
+
+// ADDED: ADMIN ROUTES (Protected by 'admin' middleware)
+Route::middleware(['auth', 'admin'])->group(function () { 
+    // Admin: Report Update (Status/Feedback/OPD)
+    Route::put('/reports/{report}', [DashboardController::class, 'update'])->name('reports.update'); // Admin update logic
+
+    // Manajemen Berita admin
+    Route::prefix('admin/news')->name('admin.news.')->group(function () {
+        Route::get('/', [NewsController::class, 'adminIndex'])->name('index');
+        Route::get('/create', [NewsController::class, 'create'])->name('create');
+        Route::post('/', [NewsController::class, 'store'])->name('store');
+        Route::get('/{newsItem}/edit', [NewsController::class, 'edit'])->name('edit');
+        Route::put('/{newsItem}', [NewsController::class, 'update'])->name('update');
+        Route::delete('/{newsItem}', [NewsController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::middleware('auth')->group(function () {
