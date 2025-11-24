@@ -100,11 +100,12 @@
                             required>
                     </div>
 
-                    <div>
+                   <div>
                         <label class="block text-white font-bold mb-1 ml-1 text-sm md:text-base drop-shadow-md">No. Telepon</label>
-                        <input type="number" name="phone" value="{{ old('phone') }}"
-                            class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 focus:bg-white/20 focus:border-pink-400 focus:ring-0 focus:outline-none text-white placeholder-gray-300 transition-all backdrop-blur-sm @error('phone') border-red-500 @enderror"
+                        <input type="number" name="nomor_telepon" value="{{ old('nomor_telepon') }}"
+                            class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 focus:bg-white/20 focus:border-pink-400 focus:ring-0 focus:outline-none text-white placeholder-gray-300 transition-all backdrop-blur-sm @error('nomor_telepon') border-red-500 @enderror"
                             required>
+                        @error('nomor_telepon') <span class="text-red-300 text-xs ml-1 font-bold">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="pt-4">
