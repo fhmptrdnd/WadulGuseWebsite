@@ -69,9 +69,13 @@
         <div class="report-card">
             {{-- Detail Laporan --}}
             <h3>Laporan #{{ $report->id }} - {{ $report->title }}</h3>
+
+            <p style="font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 5px;">
+                Dibuat: {{ $report->created_at->format('d M Y H:i') }} | Terakhir Diperbarui: {{ $report->updated_at->format('d M Y H:i') }}
+            </p>
             <p>Dibuat Oleh: {{ $report->user->name }} | NIK: {{ $report->user->nik }}</p>
             <p>Status Saat Ini: <strong>{{ strtoupper($report->status) }}</strong> | Prioritas Awal: <strong>{{ strtoupper($report->prioritas) }}<strong></p>
-            
+
             {{-- Data Baru OPD --}}
             <p style="font-weight: bold;">Ditangani Oleh OPD: 
                 {{ $report->opd->nama_opd ?? 'BELUM DITUGASKAN' }}

@@ -41,6 +41,10 @@
     @forelse ($reports as $report)
         <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 15px;">
             <h3>{{ $report->title }} (Status: {{ strtoupper($report->status) }})</h3>
+
+            <p style="font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 5px;">
+                Dibuat: {{ $report->created_at->format('d M Y H:i') }} | Terakhir Diperbarui: {{ $report->updated_at->format('d M Y H:i') }}
+            </p>
             
             {{--  Prioritas --}}
             <p>
