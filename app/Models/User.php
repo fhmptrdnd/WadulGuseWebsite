@@ -3,13 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Report;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
+    use Notifiable;
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
@@ -19,13 +22,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'email',
-        'password',
-        // --- TAMBAHAN KHUSUS WADULGUSE ---
         'nik',
-        'username',
+        'email',
+        'nomor_telepon',
         'alamat',
-        'phone',
+        'username',
+        'password',
     ];
 
     /**
@@ -38,13 +40,22 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    public function deactive()
+    {
+        $this->update(['is_active' => false]);
+    }
     /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean'
     ];
 }
