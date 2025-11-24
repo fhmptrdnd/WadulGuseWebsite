@@ -1,29 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\AuthController;
 
-Route::middleware('guest')->group(function () {
-    // Login
-    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [LoginController::class, 'login']);
+// Halaman Depan
+Route::get('/', [AuthController::class, 'showLanding'])->name('home');
 
-    // Register
-    Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('register', [RegisterController::class, 'register']);
-});
+// Halaman Login & Proses Login
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'processLogin']);
 
-Route::middleware('auth')->group(function () {
-    // Logout
-    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+// Halaman Register & Proses Register
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'processRegister']);
 
-    // Dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
-
-Route::get('/', function () {
-    return view('welcome');
-});
+// Logout
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
