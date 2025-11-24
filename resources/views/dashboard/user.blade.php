@@ -41,24 +41,26 @@
     @forelse ($reports as $report)
         <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 15px;">
             <h3>{{ $report->title }} (Status: {{ strtoupper($report->status) }})</h3>
-            
+            <p style="font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 5px;">
+                Dibuat: {{ $report->created_at->format('d M Y H:i') }} | Terakhir Diperbarui: {{ $report->updated_at->format('d M Y H:i') }}
+            </p>
             {{--  Prioritas --}}
             <p>
                 Kategori: {{ $report->category }} | Prioritas: {{ strtoupper($report->prioritas) }} | Lokasi: {{ $report->location }}
             </p>
-            
+
             {{--  OPD yang Menangani --}}
             <p style="font-weight: bold; margin-top: 5px;">
-                Ditangani Oleh OPD: 
+                Ditangani Oleh OPD:
                 {{ $report->opd->nama_opd ?? 'Belum Ditugaskan' }}
             </p>
-            
+
             <hr>
-            
+
             <p>Deskripsi Aduan:</p>
             <p>{{ $report->description }}</p>
-            
-            <p>Foto User: 
+
+            <p>Foto User:
                 @if ($report->photo)
                     <a href="{{ asset('storage/' . $report->photo) }}" target="_blank">Lihat Foto Awal</a>
                 @else
@@ -70,7 +72,7 @@
             @if ($report->admin_photo)
                 <p>Foto Bukti Progres Admin: <a href="{{ asset('storage/' . $report->admin_photo) }}" target="_blank">Lihat Bukti</a></p>
             @endif
-            
+
             {{-- Tampilan Feedback Admin --}}
             @if ($report->feedback)
                 <p style="color: blue; font-weight: bold; margin-top: 10px;">Feedback Admin: </p>

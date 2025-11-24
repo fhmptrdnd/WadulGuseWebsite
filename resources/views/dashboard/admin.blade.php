@@ -69,11 +69,14 @@
         <div class="report-card">
             {{-- Detail Laporan --}}
             <h3>Laporan #{{ $report->id }} - {{ $report->title }}</h3>
+            <p style="font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 5px;">
+                Dibuat: {{ $report->created_at->format('d M Y H:i') }} | Terakhir Diperbarui: {{ $report->updated_at->format('d M Y H:i') }}
+            </p>
             <p>Dibuat Oleh: {{ $report->user->name }} | NIK: {{ $report->user->nik }}</p>
             <p>Status Saat Ini: <strong>{{ strtoupper($report->status) }}</strong> | Prioritas Awal: <strong>{{ strtoupper($report->prioritas) }}<strong></p>
-            
+
             {{-- Data Baru OPD --}}
-            <p style="font-weight: bold;">Ditangani Oleh OPD: 
+            <p style="font-weight: bold;">Ditangani Oleh OPD:
                 {{ $report->opd->nama_opd ?? 'BELUM DITUGASKAN' }}
                 @if($report->handler)
                     (Diupdate Oleh Admin: {{ $report->handler->name }})
@@ -81,7 +84,7 @@
             </p>
 
             <p>Deskripsi: {{ $report->description }}</p>
-            
+
             @if ($report->photo)
                 <p>Foto Awal User: <a href="{{ asset('storage/' . $report->photo) }}" target="_blank">Lihat Foto</a></p>
             @endif
@@ -93,9 +96,9 @@
             <form method="POST" action="{{ route('reports.update', $report->id) }}" enctype="multipart/form-data" id="report-form-{{ $report->id }}">
                 @csrf
                 @method('PUT')
-                
+
                 <hr>
-                
+
                 <label for="status_{{ $report->id }}">Ubah Status:</label>
                 <select id="status_{{ $report->id }}" name="status" required onchange="toggleAdminFields(this, {{ $report->id }})">
                     <option value="pending" {{ $report->status === 'pending' ? 'selected' : '' }}>Pending</option>
@@ -106,7 +109,7 @@
                 </select>
 
                 <div id="opd-prioritas-group-{{ $report->id }}" style="display: none;">
-                    
+
                     <label for="opd_id_{{ $report->id }}">Tugaskan ke OPD (Wajib, Hanya Terverifikasi):</label>
                     <select id="opd_id_{{ $report->id }}" name="opd_id">
                         <option value="">-- Pilih OPD (Tidak Ditugaskan) --</option>
@@ -130,7 +133,7 @@
                     <label for="feedback_{{ $report->id }}">Feedback Admin:</label>
                     <textarea id="feedback_{{ $report->id }}" name="feedback" rows="3">{{ old('feedback', $report->feedback) }}</textarea>
                 </div>
-                
+
                 <div id="photo-upload-group-{{ $report->id }}" style="display: none;">
                     <label for="admin_photo_{{ $report->id }}">Upload Foto Bukti/Progres (Opsional):</label>
                     <input type="file" id="admin_photo_{{ $report->id }}" name="admin_photo">
@@ -153,7 +156,7 @@
             const selectElement = document.getElementById('status_{{ $report->id }}');
             if (selectElement) {
                 // Panggil fungsi saat halaman dimuat untuk menampilkan field yang sesuai dengan status laporan saat ini
-                toggleAdminFields(selectElement, {{ $report->id }}); 
+                toggleAdminFields(selectElement, {{ $report->id }});
             }
         @empty
             // No reports
@@ -164,7 +167,7 @@
         const status = selectElement.value;
         const opdPrioritasGroup = document.getElementById('opd-prioritas-group-' + reportId);
         const photoUploadGroup = document.getElementById('photo-upload-group-' + reportId);
-        
+
         // Element form untuk required conditional
         const opdField = document.getElementById('opd_id_' + reportId);
         const prioritasField = document.getElementById('prioritas_id_' + reportId);
@@ -187,7 +190,7 @@
         } else {
             photoUploadGroup.style.display = 'none';
         }
-        
+
         // --- 3. Logika FEEDBACK ADMIN (Wajib untuk Diproses, Selesai, Ditolak) ---
         if (status === 'on_progress' || status === 'done' || status === 'rejected') {
             feedbackField.setAttribute('required', 'required');
