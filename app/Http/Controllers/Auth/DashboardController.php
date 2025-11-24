@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\Report;
 use App\Models\User;
-use App\Models\KategoriOpd; // <-- Pastikan Import Model ini
+use App\Models\KategoriOpd;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -18,52 +18,52 @@ class DashboardController extends Controller
      * Menampilkan Dashboard berdasarkan Peran (Admin atau User).
      */
     public function index(Request $request)
-{
-    /** @var \App\Models\User */
-    $user = Auth::user();
+    {
+        /** @var \App\Models\User */
+        $user = Auth::user();
 
-    if ($user->role === 'admin') {
-        // Start Query
-        $query = Report::with(['user', 'opd']); // Eager load biar ringan
+        if ($user->role === 'admin') {
+            // Start Query
+            $query = Report::with(['user', 'opd']); // Eager load biar ringan
 
-        // 1. Filter Search (Judul, Nama Pelapor, NIK)
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function (Builder $q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhereHas('user', function (Builder $qUser) use ($search) {
-                      $qUser->where('name', 'like', "%{$search}%")
-                            ->orWhere('nik', 'like', "%{$search}%");
-                  });
-            });
+            // 1. Filter Search (Judul, Nama Pelapor, NIK)
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function (Builder $q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('user', function (Builder $qUser) use ($search) {
+                        $qUser->where('name', 'like', "%{$search}%")
+                                ->orWhere('nik', 'like', "%{$search}%");
+                    });
+                });
+            }
+
+            // 2. Filter Tanggal
+            if ($request->filled('date_start')) {
+                $query->whereDate('created_at', '>=', $request->date_start);
+            }
+            if ($request->filled('date_end')) {
+                $query->whereDate('created_at', '<=', $request->date_end);
+            }
+
+            // 3. Filter Status
+            if ($request->filled('status_filter')) {
+                $query->where('status', $request->status_filter);
+            }
+
+            // Ambil Data (Pagination 10 per halaman)
+            $reports = $query->latest()->paginate(10)->appends($request->query());
+
+            // Ambil Data OPD untuk dropdown form
+            $opds = \App\Models\KategoriOpd::all();
+
+            return view('dashboard.admin', compact('reports', 'opds'));
         }
 
-        // 2. Filter Tanggal
-        if ($request->filled('date_start')) {
-            $query->whereDate('created_at', '>=', $request->date_start);
-        }
-        if ($request->filled('date_end')) {
-            $query->whereDate('created_at', '<=', $request->date_end);
-        }
-
-        // 3. Filter Status
-        if ($request->filled('status_filter')) {
-            $query->where('status', $request->status_filter);
-        }
-
-        // Ambil Data (Pagination 10 per halaman)
-        $reports = $query->latest()->paginate(10)->appends($request->query());
-
-        // Ambil Data OPD untuk dropdown form
-        $opds = \App\Models\KategoriOpd::all();
-
-        return view('dashboard.admin', compact('reports', 'opds'));
+        // User tetap sama
+        $reports = $user->reports()->latest()->get();
+        return view('dashboard.user', compact('reports'));
     }
-
-    // User tetap sama
-    $reports = $user->reports()->latest()->get();
-    return view('dashboard.user', compact('reports'));
-}
 
     /**
      * Admin: Mengedit Status dan Feedback Laporan.
