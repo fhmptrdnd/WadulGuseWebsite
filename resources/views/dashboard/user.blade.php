@@ -14,19 +14,20 @@
         <div style="color: red;">{{ session('error') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-        @csrf
-        <button type="submit">Logout</button>
-    </form>
+    <div class="nav-menu">
+        <a href="{{ route('profile.show') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+            Profil
+        </a>
 
-    <a href="{{ route('reports.create') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
-        + Buat Laporan Baru
-    </a>
+        <a href="{{ route('reports.create') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+            + Buat Laporan Baru
+        </a>
 
-    <a href="{{ route('news.index') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
-        Lihat Berita
-    </a>
-    
+        <a href="{{ route('news.index') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+            Lihat Berita
+        </a>
+    </div>
+
     <hr>
 
     <h2>Notifikasi</h2>
@@ -48,12 +49,11 @@
             <p style="font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 5px;">
                 Dibuat: {{ $report->created_at->format('d M Y H:i') }} | Terakhir Diperbarui: {{ $report->updated_at->format('d M Y H:i') }}
             </p>
-            {{--  Prioritas --}}
+
             <p>
                 Kategori: {{ $report->category }} | Prioritas: {{ strtoupper($report->prioritas) }} | Lokasi: {{ $report->location }}
             </p>
 
-            {{--  OPD yang Menangani --}}
             <p style="font-weight: bold; margin-top: 5px;">
                 Ditangani Oleh OPD:
                 {{ $report->opd->nama_opd ?? 'Belum Ditugaskan' }}
@@ -72,12 +72,10 @@
                 @endif
             </p>
 
-            {{-- Foto Bukti Admin --}}
             @if ($report->admin_photo)
                 <p>Foto Bukti Progres Admin: <a href="{{ asset('storage/' . $report->admin_photo) }}" target="_blank">Lihat Bukti</a></p>
             @endif
 
-            {{-- Tampilan Feedback Admin --}}
             @if ($report->feedback)
                 <p style="color: blue; font-weight: bold; margin-top: 10px;">Feedback Admin: </p>
                 <div style="border-left: 3px solid blue; padding-left: 10px; margin-top: -10px;">

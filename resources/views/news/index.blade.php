@@ -16,7 +16,7 @@
                 <img src="{{ asset('storage/' . $item->gambar_thumbnail) }}" alt="Thumbnail" width="100"><br>
             @endif
             <p>{{ Str::limit($item->konten, 150) }}</p>
-            <small>Dibuat: {{ $item->tanggal_dibuat->format('d M Y') }} oleh Admin: {{ $item->admin->name }}</small>
+            <small>Dibuat: {{ $item->tanggal_dibuat->format('d M Y') }} | Oleh: {{ $item->admin->name }}</small>
         </div>
     @empty
         <p>Belum ada berita yang dipublikasikan.</p>

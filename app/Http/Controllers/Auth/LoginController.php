@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,6 +19,14 @@ class LoginController extends Controller
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
+
+        $user = User::where('username', $request->username)->first();
+
+        if ($user && ! $user->is_active) {
+            return back()->withErrors([
+                'username' => 'Akses ditolak. Akun Anda sedang dinonaktifkan oleh Admin, silahkan hubungi Admin.',
+            ])->onlyInput('username');
+        }
 
         $credentials = [
             'username' => $request -> username,

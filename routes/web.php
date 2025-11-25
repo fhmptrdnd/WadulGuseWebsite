@@ -7,6 +7,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Auth\DashboardController;
+use App\Http\Controllers\ProfileController;
 
 
 Route::middleware('guest')->group(function () {
@@ -33,24 +34,29 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // User Profile Update
-    Route::put('/user/profile', [UserController::class, 'updateProfile'])->name('user.updateProfile');
+    //kelola profil user by admin
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::put('/admin/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
+    Route::put('/admin/users/{user}/activate', [UserController::class, 'activate'])->name('admin.users.activate');
 
-    // News Listing
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    //user profil update
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    //list berita
     Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 
-    // Report Submission
+    //aduan
     Route::get('/reports/create', [ReportController::class, 'index'])->name('reports.create');
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
     Route::put('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
 });
 
-// ADDED: ADMIN ROUTES (Protected by 'admin' middleware)
-Route::middleware(['auth', 'admin'])->group(function () { 
-    // Admin: Report Update (Status/Feedback/OPD)
+Route::middleware(['auth', 'admin'])->group(function () {
+    //feedback dll by admin di aduan
     Route::put('/reports/{report}', [DashboardController::class, 'update'])->name('reports.update'); // Admin update logic
 
-    // Manajemen Berita admin
+    //manage berita acara by aadmin
     Route::prefix('admin/news')->name('admin.news.')->group(function () {
         Route::get('/', [NewsController::class, 'adminIndex'])->name('index');
         Route::get('/create', [NewsController::class, 'create'])->name('create');
@@ -65,8 +71,8 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Admin: edit n feedback
-    Route::put('/reports/{report}', [DashboardController::class, 'update'])->name('reports.update');
+    // // Admin: edit n feedback
+    // Route::put('/reports/{report}', [DashboardController::class, 'update'])->name('reports.update');
 
     // User: hapus laporan
     Route::delete('/reports/{report}', [DashboardController::class, 'destroy'])->name('reports.destroy');

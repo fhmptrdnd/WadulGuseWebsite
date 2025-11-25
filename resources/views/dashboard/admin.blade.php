@@ -18,7 +18,7 @@
             margin-bottom: 20px;
             display: block;
         }
-        /* PERUBAHAN CSS: Tambahkan input untuk file/number agar ter-styling */
+
         .report-card select, .report-card input[type="number"], .report-card input[type="file"], .report-card textarea, .report-card button {
             width: 100%;
             padding: 8px;
@@ -40,15 +40,25 @@
         <div style="color: green; padding: 10px; border: 1px solid green; margin-bottom: 10px;">{{ session('success') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-        @csrf
-        <button type="submit">Logout</button>
-    </form>
-    
-    <a href="{{ route('admin.news.index') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
-        Manajemen Berita
-    </a>
-    
+    <div class="nav-menu" style="display: flex; align-items: center;">
+        <a href="{{ route('profile.show') }}" class="nav-item" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+            Profile Admin
+        </a>
+
+        <a href="{{ route('admin.users.index') }}" class="nav-item" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+            Kelola Profil
+        </a>
+
+        {{-- <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="nav-item" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">Keluar</button>
+        </form> --}}
+
+        <a href="{{ route('admin.news.index') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
+            Manajemen Berita
+        </a>
+    </div>
+
     <hr>
 
     <h2>Laporan Baru</h2>
@@ -65,13 +75,11 @@
     <h2>Semua Laporan (Untuk Diproses)</h2>
 
     @php
-        // Mengambil semua data OPD untuk dropdown
         $opds = App\Models\KategoriOpd::all();
     @endphp
 
     @forelse ($reports as $report)
         <div class="report-card">
-            {{-- Detail Laporan --}}
             <h3>Laporan #{{ $report->id }} - {{ $report->title }}</h3>
             <p style="font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 5px;">
                 Dibuat: {{ $report->created_at->format('d M Y H:i') }} | Terakhir Diperbarui: {{ $report->updated_at->format('d M Y H:i') }}
@@ -79,7 +87,6 @@
             <p>Dibuat Oleh: {{ $report->user->name }} | NIK: {{ $report->user->nik }}</p>
             <p>Status Saat Ini: <strong>{{ strtoupper($report->status) }}</strong> | Prioritas Awal: <strong>{{ strtoupper($report->prioritas) }}<strong></p>
 
-            {{-- Data Baru OPD --}}
             <p style="font-weight: bold;">Ditangani Oleh OPD:
                 {{ $report->opd->nama_opd ?? 'BELUM DITUGASKAN' }}
                 @if($report->handler)
@@ -95,7 +102,6 @@
             @if ($report->admin_photo)
                 <p>Foto Bukti Admin: <a href="{{ asset('storage/' . $report->admin_photo) }}" target="_blank">Lihat Bukti Terakhir</a></p>
             @endif
-            {{-- End Detail Baru --}}
 
             <form method="POST" action="{{ route('reports.update', $report->id) }}" enctype="multipart/form-data" id="report-form-{{ $report->id }}">
                 @csrf
@@ -155,15 +161,12 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inisialisasi status awal pada saat halaman dimuat
         @forelse ($reports as $report)
             const selectElement = document.getElementById('status_{{ $report->id }}');
             if (selectElement) {
-                // Panggil fungsi saat halaman dimuat untuk menampilkan field yang sesuai dengan status laporan saat ini
                 toggleAdminFields(selectElement, {{ $report->id }});
             }
         @empty
-            // No reports
         @endforelse
     });
 
@@ -172,30 +175,26 @@
         const opdPrioritasGroup = document.getElementById('opd-prioritas-group-' + reportId);
         const photoUploadGroup = document.getElementById('photo-upload-group-' + reportId);
 
-        // Element form untuk required conditional
         const opdField = document.getElementById('opd_id_' + reportId);
         const prioritasField = document.getElementById('prioritas_id_' + reportId);
-        const feedbackField = document.getElementById('feedback_' + reportId); // Menggunakan feedback
+        const feedbackField = document.getElementById('feedback_' + reportId);
 
-        // --- 1. Logika OPD & PRIORITAS (HANYA Terverifikasi) ---
         if (status === 'verified') {
             opdPrioritasGroup.style.display = 'block';
-            opdField.setAttribute('required', 'required'); // Wajib
-            prioritasField.setAttribute('required', 'required'); // Wajib
+            opdField.setAttribute('required', 'required');
+            prioritasField.setAttribute('required', 'required');
         } else {
             opdPrioritasGroup.style.display = 'none';
             opdField.removeAttribute('required');
             prioritasField.removeAttribute('required');
         }
 
-        // --- 2. Logika UPLOAD FOTO (Terverifikasi, Diproses, Selesai) ---
         if (status === 'verified' || status === 'on_progress' || status === 'done') {
             photoUploadGroup.style.display = 'block';
         } else {
             photoUploadGroup.style.display = 'none';
         }
 
-        // --- 3. Logika FEEDBACK ADMIN (Wajib untuk Diproses, Selesai, Ditolak) ---
         if (status === 'on_progress' || status === 'done' || status === 'rejected') {
             feedbackField.setAttribute('required', 'required');
         } else {
