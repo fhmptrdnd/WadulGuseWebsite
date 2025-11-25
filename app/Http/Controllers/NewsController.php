@@ -20,7 +20,7 @@ class NewsController extends Controller
 
         return view('news.index', compact('news'));
     }
-    
+
     // Menampilkan detail satu berita
     public function show($slug)
     {
@@ -32,16 +32,16 @@ class NewsController extends Controller
     }
 
     // Admin View
-    
+
     public function adminIndex()
     {
         $news = News::with('admin')->orderByDesc('tanggal_dibuat')->get();
-        return view('dashboard.news.index', compact('news'));
+        return view('admin.news.index', compact('news'));
     }
 
     public function create()
     {
-        return view('dashboard.news.create');
+        return view('admin.news.create');
     }
 
     // Menyimpan berita baru
@@ -71,7 +71,7 @@ class NewsController extends Controller
 
     public function edit(News $newsItem)
     {
-        return view('dashboard.news.edit', compact('newsItem'));
+        return view('admin.news.edit', compact('newsItem'));
     }
 
     // Memperbarui berita
@@ -82,7 +82,7 @@ class NewsController extends Controller
             'konten' => 'required|string',
             'gambar_thumbnail' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-        
+
         $filepath = $newsItem->gambar_thumbnail;
         $slug = $newsItem->slug;
 
