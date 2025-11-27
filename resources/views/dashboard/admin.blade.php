@@ -1,206 +1,290 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Admin</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        .notification-box {
-            background-color: #fff3cd;
-            border-left: 5px solid #ffc107;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: block;
-        }
-        .report-card {
-            border: 2px solid #333;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: block;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Wadul Guse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .report-card select, .report-card input[type="number"], .report-card input[type="file"], .report-card textarea, .report-card button {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            margin-top: 5px;
-            margin-bottom: 10px;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: '#1c023b', // Biru gelap (Hampir hitam)
+                        active: '#34d399',  // Hijau cerah (Emerald-400)
+                        beige: {
+                            DEFAULT: '#f3e8d9', // Warna dasar Card (Krem)
+                            dark: '#eaddc5',    // Border/Input
+                            text: '#8d7f68',    // Teks secondary
+                        },
+                        status: {
+                            pink: '#f472b6',   // Menunggu
+                            blue: '#60a5fa',   // Diproses
+                            green: '#34d399',  // Selesai/Verified
+                        }
+                    }
+                }
+            }
         }
-        .report-card label {
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        /* Hilangkan scrollbar tapi tetap bisa scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Input Custom Style agar menyatu dengan background Beige */
+        .form-input {
+            background-color: #eaddc5;
+            border: 1px solid #d4c5a8;
+            color: #1f2937;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            width: 100%;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            outline: 2px solid #34d399;
+            background-color: #fff;
         }
     </style>
 </head>
-<body>
-    <h1>Halaman Administrator</h1>
+<body class="h-screen flex overflow-hidden">
 
-    @if (session('success'))
-        <div style="color: green; padding: 10px; border: 1px solid green; margin-bottom: 10px;">{{ session('success') }}</div>
-    @endif
-
-    <div class="nav-menu" style="display: flex; align-items: center;">
-        <a href="{{ route('profile.show') }}" class="nav-item" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
-            Profile Admin
-        </a>
-
-        <a href="{{ route('admin.users.index') }}" class="nav-item" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
-            Kelola Profil
-        </a>
-
-        {{-- <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="nav-item" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">Keluar</button>
-        </form> --}}
-
-        <a href="{{ route('admin.news.index') }}" style="background-color: white; color: black; padding: 5px; text-decoration: none; border: 1px solid black; border-radius: 5px; margin-left: 10px; font-size:0.8rem;">
-            Manajemen Berita
-        </a>
-    </div>
-
-    <hr>
-
-    <h2>Laporan Baru</h2>
-    @forelse (Auth::user()->unreadNotifications as $notification)
-        <div class="notification-box">
-            Laporan ID #{{ $notification->data['report_id'] }} - {{ $notification->data['title'] }}
-            <small style="float: right;">Dibuat: {{ $notification->created_at->diffForHumans() }}</small>
+    <aside class="w-64 bg-sidebar text-white flex flex-col flex-shrink-0">
+        <div class="p-6">
+            <h1 class="text-active text-xl font-bold tracking-wide">Admin Panel</h1>
         </div>
-    @empty
-        <p>Tidak ada notifikasi laporan baru.</p>
-    @endforelse
 
-    <hr>
-    <h2>Semua Laporan (Untuk Diproses)</h2>
-
-    @php
-        $opds = App\Models\KategoriOpd::all();
-    @endphp
-
-    @forelse ($reports as $report)
-        <div class="report-card">
-            <h3>Laporan #{{ $report->id }} - {{ $report->title }}</h3>
-            <p style="font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 5px;">
-                Dibuat: {{ $report->created_at->format('d M Y H:i') }} | Terakhir Diperbarui: {{ $report->updated_at->format('d M Y H:i') }}
-            </p>
-            <p>Dibuat Oleh: {{ $report->user->name }} | NIK: {{ $report->user->nik }}</p>
-            <p>Status Saat Ini: <strong>{{ strtoupper($report->status) }}</strong> | Prioritas Awal: <strong>{{ strtoupper($report->prioritas) }}<strong></p>
-
-            <p style="font-weight: bold;">Ditangani Oleh OPD:
-                {{ $report->opd->nama_opd ?? 'BELUM DITUGASKAN' }}
-                @if($report->handler)
-                    (Diupdate Oleh Admin: {{ $report->handler->name }})
-                @endif
-            </p>
-
-            <p>Deskripsi: {{ $report->description }}</p>
-
-            @if ($report->photo)
-                <p>Foto Awal User: <a href="{{ asset('storage/' . $report->photo) }}" target="_blank">Lihat Foto</a></p>
-            @endif
-            @if ($report->admin_photo)
-                <p>Foto Bukti Admin: <a href="{{ asset('storage/' . $report->admin_photo) }}" target="_blank">Lihat Bukti Terakhir</a></p>
-            @endif
-
-            <form method="POST" action="{{ route('reports.update', $report->id) }}" enctype="multipart/form-data" id="report-form-{{ $report->id }}">
-                @csrf
-                @method('PUT')
-
-                <hr>
-
-                <label for="status_{{ $report->id }}">Ubah Status:</label>
-                <select id="status_{{ $report->id }}" name="status" required onchange="toggleAdminFields(this, {{ $report->id }})">
-                    <option value="pending" {{ $report->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="verified" {{ $report->status === 'verified' ? 'selected' : '' }}>Terverifikasi</option>
-                    <option value="on_progress" {{ $report->status === 'on_progress' ? 'selected' : '' }}>Sedang Diproses</option>
-                    <option value="done" {{ $report->status === 'done' ? 'selected' : '' }}>Selesai</option>
-                    <option value="rejected" {{ $report->status === 'rejected' ? 'selected' : '' }}>Ditolak</option>
-                </select>
-
-                <div id="opd-prioritas-group-{{ $report->id }}" style="display: none;">
-
-                    <label for="opd_id_{{ $report->id }}">Tugaskan ke OPD (Wajib, Hanya Terverifikasi):</label>
-                    <select id="opd_id_{{ $report->id }}" name="opd_id">
-                        <option value="">-- Pilih OPD (Tidak Ditugaskan) --</option>
-                        @foreach ($opds as $opd)
-                            <option value="{{ $opd->opd_id }}" {{ old('opd_id', $report->opd_id) == $opd->opd_id ? 'selected' : '' }}>
-                                {{ $opd->nama_opd }} (Tanggung: {{ $opd->kategori_tanggungan }})
-                            </option>
-                        @endforeach
-                    </select>
-
-                    <label for="prioritas_id_{{ $report->id }}">Prioritas Ditetapkan (Wajib, Hanya Terverifikasi):</label>
-                    <select id="prioritas_id_{{ $report->id }}" name="prioritas">
-                        <option value="rendah" {{ old('prioritas', $report->prioritas) === 'rendah' ? 'selected' : '' }}>Rendah</option>
-                        <option value="sedang" {{ old('prioritas', $report->prioritas) === 'sedang' ? 'selected' : '' }}>Sedang</option>
-                        <option value="tinggi" {{ old('prioritas', $report->prioritas) === 'tinggi' ? 'selected' : '' }}>Tinggi</option>
-                    </select>
-                </div>
-
-                <div id="feedback-group-{{ $report->id }}">
-
-                    <label for="feedback_{{ $report->id }}">Feedback Admin:</label>
-                    <textarea id="feedback_{{ $report->id }}" name="feedback" rows="3">{{ old('feedback', $report->feedback) }}</textarea>
-                </div>
-
-                <div id="photo-upload-group-{{ $report->id }}" style="display: none;">
-                    <label for="admin_photo_{{ $report->id }}">Upload Foto Bukti/Progres (Opsional):</label>
-                    <input type="file" id="admin_photo_{{ $report->id }}" name="admin_photo">
-                </div>
-
-                <button type="submit" style="background-color: blue; color: white;">
-                    Update & Kirim Notifikasi
-                </button>
-            </form>
-
+        <div class="flex flex-col items-center mt-2 mb-8">
+            <div class="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center text-white text-2xl font-bold mb-3 border-2 border-active">
+                {{ substr(Auth::user()->name, 0, 2) }}
+            </div>
+            <h2 class="font-semibold text-lg">{{ Auth::user()->name }}</h2>
+            <p class="text-gray-400 text-xs uppercase tracking-wider">Administrator</p>
         </div>
-    @empty
-        <p>Tidak ada laporan baru.</p>
-    @endforelse
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        @forelse ($reports as $report)
-            const selectElement = document.getElementById('status_{{ $report->id }}');
-            if (selectElement) {
-                toggleAdminFields(selectElement, {{ $report->id }});
-            }
-        @empty
-        @endforelse
-    });
+        <nav class="flex-1 px-4 space-y-3">
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-active text-sidebar font-bold shadow-lg shadow-green-500/20">
+                <i class="fas fa-home w-5 text-center"></i>
+                <span>Beranda</span>
+            </a>
 
-    function toggleAdminFields(selectElement, reportId) {
-        const status = selectElement.value;
-        const opdPrioritasGroup = document.getElementById('opd-prioritas-group-' + reportId);
-        const photoUploadGroup = document.getElementById('photo-upload-group-' + reportId);
+            <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                <i class="fas fa-users w-5 text-center"></i>
+                <span>Kelola Pengguna</span>
+            </a>
 
-        const opdField = document.getElementById('opd_id_' + reportId);
-        const prioritasField = document.getElementById('prioritas_id_' + reportId);
-        const feedbackField = document.getElementById('feedback_' + reportId);
+            <a href="{{ route('admin.news.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                <i class="fas fa-newspaper w-5 text-center"></i>
+                <span>Kelola Berita</span>
+            </a>
 
-        if (status === 'verified') {
-            opdPrioritasGroup.style.display = 'block';
-            opdField.setAttribute('required', 'required');
-            prioritasField.setAttribute('required', 'required');
-        } else {
-            opdPrioritasGroup.style.display = 'none';
-            opdField.removeAttribute('required');
-            prioritasField.removeAttribute('required');
-        }
+            <a href="{{ route('profile.show') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+                <i class="fas fa-user-cog w-5 text-center"></i>
+                <span>Profile Admin</span>
+            </a>
+        </nav>
+    </aside>
 
-        if (status === 'verified' || status === 'on_progress' || status === 'done') {
-            photoUploadGroup.style.display = 'block';
-        } else {
-            photoUploadGroup.style.display = 'none';
-        }
+    <main class="flex-1 overflow-y-auto no-scrollbar p-8 bg-gradient-to-br from-[#741353] to-[#4a148c]">
 
-        if (status === 'on_progress' || status === 'done' || status === 'rejected') {
-            feedbackField.setAttribute('required', 'required');
-        } else {
-            feedbackField.removeAttribute('required');
-        }
-    }
-</script>
+        @if (session('success'))
+            <div id="alert-box" class="mb-6 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded shadow-sm flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <p>{{ session('success') }}</p>
+                </div>
+                <button onclick="document.getElementById('alert-box').remove()" class="text-emerald-500 hover:text-emerald-800"><i class="fas fa-times"></i></button>
+            </div>
+        @endif
+
+        <header class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-white drop-shadow-md">Dashboard Admin</h1>
+                <p class="text-pink-100 text-sm mt-1">Ringkasan statistik dan pengelolaan laporan masuk</p>
+            </div>
+            <div class="text-right">
+                <span class="text-sm text-pink-100 font-semibold">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+            <div class="bg-beige p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <h3 class="text-gray-700 font-semibold mb-2">Total Pengaduan</h3>
+                <p class="text-4xl font-bold text-gray-800">{{ $stats['total_pengaduan'] ?? $reports->count() }}</p>
+                <p class="text-beige-text text-sm mt-2">Semua laporan masuk</p>
+            </div>
+            <div class="bg-beige p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <h3 class="text-gray-700 font-semibold mb-2">Menunggu</h3>
+                <p class="text-4xl font-bold text-status-pink">{{ $stats['menunggu'] ?? 0 }}</p>
+                <p class="text-beige-text text-sm mt-2">Belum ditangani</p>
+            </div>
+            <div class="bg-beige p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <h3 class="text-gray-700 font-semibold mb-2">Diproses</h3>
+                <p class="text-4xl font-bold text-status-blue">{{ $stats['diproses'] ?? 0 }}</p>
+                <p class="text-beige-text text-sm mt-2">Dalam penanganan</p>
+            </div>
+            <div class="bg-beige p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <h3 class="text-gray-700 font-semibold mb-2">Selesai</h3>
+                <p class="text-4xl font-bold text-status-green">{{ $stats['selesai'] ?? 0 }}</p>
+                <p class="text-beige-text text-sm mt-2">Telah diselesaikan</p>
+            </div>
+        </div>
+
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Laporan Terbaru ({{ $reports->count() }})</h2>
+
+                <div class="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center w-64 shadow-sm">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="Cari laporan..." class="bg-transparent border-none outline-none text-sm w-full">
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                @php
+                    $opds = App\Models\KategoriOpd::all();
+                @endphp
+
+                @forelse ($reports as $report)
+                <div class="bg-beige rounded-2xl p-6 shadow-sm border border-transparent hover:border-beige-dark transition-all">
+
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-status-green text-white font-bold px-3 py-1 rounded text-sm">#{{ $report->id }}</span>
+                            <h3 class="text-lg font-bold text-gray-800">{{ $report->title }}</h3>
+                        </div>
+
+                        @php
+                            $badgeColor = match($report->status) {
+                                'pending' => 'bg-status-pink text-white',
+                                'verified' => 'bg-status-green text-white',
+                                'on_progress' => 'bg-status-blue text-white',
+                                'done' => 'bg-status-green text-white',
+                                'rejected' => 'bg-red-500 text-white',
+                                default => 'bg-gray-400 text-white'
+                            };
+                        @endphp
+                        <span class="{{ $badgeColor }} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                            {{ $report->status }}
+                        </span>
+                    </div>
+
+                    <div class="text-sm text-gray-500 mb-4 space-y-1">
+                        <p>Oleh: <span class="text-status-blue font-semibold">{{ $report->user->name }}</span> (NIK: {{ $report->user->nik }})</p>
+                        <p>Lokasi: {{ $report->location ?? '-' }} | Tanggal: {{ $report->created_at->format('d M Y H:i') }}</p>
+                        @if($report->prioritas && $report->prioritas != 'rendah')
+                             <span class="inline-block mt-1 border border-status-pink text-status-pink text-xs px-2 py-0.5 rounded">Prioritas: {{ ucfirst($report->prioritas) }}</span>
+                        @endif
+                    </div>
+
+                    <div class="mb-5">
+                        <h4 class="text-status-pink font-semibold text-sm mb-1">Isi Laporan:</h4>
+                        <p class="text-gray-700 leading-relaxed">{{ $report->description }}</p>
+
+                        @if ($report->photo)
+                            <a href="{{ asset('storage/' . $report->photo) }}" target="_blank" class="inline-flex items-center mt-2 text-sm text-status-blue hover:underline">
+                                <i class="fas fa-image mr-1"></i> Lihat Foto User
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="bg-slate-200/50 p-4 rounded-xl">
+                        <p class="text-gray-800 text-sm font-semibold mb-1">
+                            Ditangani OPD: <span class="font-normal">{{ $report->opd->nama_opd ?? 'Belum Ditugaskan' }}</span>
+                        </p>
+
+                        @if ($report->admin_photo)
+                            <a href="{{ asset('storage/' . $report->admin_photo) }}" target="_blank" class="inline-flex items-center text-sm text-status-green font-semibold hover:underline mb-2">
+                                <i class="fas fa-check-circle mr-1"></i> Bukti Penanganan Admin
+                            </a>
+                        @endif
+
+                        @if($report->feedback)
+                            <div class="mt-2 bg-beige-dark p-3 rounded-lg text-sm text-gray-800 italic border border-beige-text/20">
+                                "{{ $report->feedback }}"
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="toggleForm('form-{{ $report->id }}')" class="bg-sidebar text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition shadow-lg shadow-gray-900/10">
+                            <i class="fas fa-edit mr-2"></i> Proses Laporan
+                        </button>
+                    </div>
+
+                    <div id="form-{{ $report->id }}" class="hidden mt-6 pt-6 border-t border-beige-dark">
+                        <form method="POST" action="{{ route('reports.update', $report->id) }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Update Status</label>
+                                    <select name="status" id="status_{{ $report->id }}" class="form-input" onchange="handleStatusChange(this, {{ $report->id }})">
+                                        <option value="pending" {{ $report->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="verified" {{ $report->status == 'verified' ? 'selected' : '' }}>Verifikasi (Verified)</option>
+                                        <option value="on_progress" {{ $report->status == 'on_progress' ? 'selected' : '' }}>Proses (On Progress)</option>
+                                        <option value="done" {{ $report->status == 'done' ? 'selected' : '' }}>Selesai (Done)</option>
+                                        <option value="rejected" {{ $report->status == 'rejected' ? 'selected' : '' }}>Tolak (Rejected)</option>
+                                    </select>
+                                </div>
+
+                                <div id="group-opd-{{ $report->id }}" class="hidden">
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pilih OPD</label>
+                                    <select name="opd_id" id="opd_{{ $report->id }}" class="form-input">
+                                        <option value="">-- Pilih OPD --</option>
+                                        @foreach ($opds as $opd)
+                                            <option value="{{ $opd->id }}" {{ $report->opd_id == $opd->id ? 'selected' : '' }}>{{ $opd->nama_opd }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div id="group-prio-{{ $report->id }}" class="hidden">
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Prioritas</label>
+                                    <select name="prioritas" id="prio_{{ $report->id }}" class="form-input">
+                                        <option value="rendah" {{ $report->prioritas == 'rendah' ? 'selected' : '' }}>Rendah</option>
+                                        <option value="sedang" {{ $report->prioritas == 'sedang' ? 'selected' : '' }}>Sedang</option>
+                                        <option value="tinggi" {{ $report->prioritas == 'tinggi' ? 'selected' : '' }}>Tinggi</option>
+                                    </select>
+                                </div>
+
+                                <div id="group-foto-{{ $report->id }}" class="hidden">
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Upload Bukti</label>
+                                    <input type="file" name="admin_photo" class="form-input text-xs">
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tanggapan Admin</label>
+                                <textarea name="feedback" id="feedback_{{ $report->id }}" rows="2" class="form-input" placeholder="Tulis pesan untuk pelapor...">{{ $report->feedback }}</textarea>
+                            </div>
+
+                            <div class="mt-4 flex justify-end gap-2">
+                                <button type="button" onclick="toggleForm('form-{{ $report->id }}')" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">Batal</button>
+                                <button type="submit" class="bg-active text-sidebar px-6 py-2 rounded-lg text-sm font-bold hover:bg-emerald-400 transition">Simpan Update</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                @empty
+                    <div class="bg-white p-10 rounded-2xl text-center border-2 border-dashed border-gray-300">
+                        <i class="fas fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">Belum ada laporan yang masuk.</p>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
+    </main>
+
+    @vite('resources/js/admin.js')
 </body>
 </html>
