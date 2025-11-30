@@ -12,6 +12,7 @@
             theme: {
                 extend: {
                     colors: {
+                        'page-bg-start': '#ec4899',
                         'page-dark': '#1e293b',
                         'card-beige': '#eaddc5',
                         'accent-pink': '#fb7185',
@@ -30,14 +31,14 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-[#4c1d95] to-[#1e293b] p-4 md:p-8">
+<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24 p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto">
 
         <div class="bg-card-beige rounded-xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg mb-8 relative z-10">
 
             <a href="{{ route('dashboard') }}" class="bg-white border border-gray-400 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-semibold flex items-center shadow-sm transition-transform hover:-translate-x-1 whitespace-nowrap">
-                <i class="fas fa-arrow-left mr-2"></i> Kembali
+                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
             </a>
 
             <h1 class="text-xl md:text-2xl font-bold text-gray-800 tracking-wide hidden md:block">Berita Terkini</h1>

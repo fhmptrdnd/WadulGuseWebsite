@@ -8,27 +8,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        sidebar: '#1c023b', // Biru gelap (Hampir hitam)
-                        active: '#34d399',  // Hijau cerah (Emerald-400)
-                        beige: {
-                            DEFAULT: '#f3e8d9', // Warna dasar Card (Krem)
-                            dark: '#eaddc5',    // Border/Input
-                            text: '#8d7f68',    // Teks secondary
-                        },
-                        status: {
-                            pink: '#f472b6',   // Menunggu
-                            blue: '#60a5fa',   // Diproses
-                            green: '#34d399',  // Selesai/Verified
-                        }
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    // Warna layout utama
+                    sidebar: '#1c023b',         // Biru gelap untuk Sidebar
+                    active: '#34d399',          // Hijau cerah untuk menu aktif
+                    'page-bg-start': '#ec4899', // Pink untuk awal gradasi background body
+
+                    // Warna Kartu (Beige Theme)
+                    beige: {
+                        DEFAULT: '#f3e8d9',     // Background kartu
+                        dark: '#eaddc5',        // Border/Input
+                        text: '#8d7f68',        // Teks secondary
+                    },
+
+                    // Warna Status Laporan (Badge)
+                    status: {
+                        pink: '#f472b6',        // Menunggu
+                        blue: '#60a5fa',        // Diproses
+                        green: '#34d399',       // Selesai/Verified
                     }
                 }
             }
         }
-    </script>
+    }
+</script>
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
@@ -91,7 +97,7 @@
         </nav>
     </aside>
 
-    <main class="flex-1 overflow-y-auto no-scrollbar p-8 bg-gradient-to-br from-[#741353] to-[#4a148c]">
+    <main class="flex-1 overflow-y-auto no-scrollbar p-8 min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24">
 
         @if (session('success'))
             <div id="alert-box" class="mb-6 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded shadow-sm flex justify-between items-center">
@@ -139,11 +145,11 @@
 
         <section>
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Laporan Terbaru ({{ $reports->count() }})</h2>
+                <h2 class="text-xl font-bold text-white">Laporan Terbaru ({{ $reports->count() }})</h2>
 
-                <div class="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center w-64 shadow-sm">
-                    <i class="fas fa-search text-gray-400 mr-2"></i>
-                    <input type="text" placeholder="Cari laporan..." class="bg-transparent border-none outline-none text-sm w-full">
+                <div class="bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 flex items-center w-64 shadow-sm">
+                    <i class="fas fa-search text-white/70 mr-2"></i>
+                    <input type="text" placeholder="Cari laporan..." class="bg-transparent border-none outline-none text-sm w-full text-white placeholder-white/70">
                 </div>
             </div>
 
@@ -275,9 +281,9 @@
 
                 </div>
                 @empty
-                    <div class="bg-white p-10 rounded-2xl text-center border-2 border-dashed border-gray-300">
-                        <i class="fas fa-folder-open text-4xl text-gray-300 mb-3"></i>
-                        <p class="text-gray-500">Belum ada laporan yang masuk.</p>
+                    <div class="bg-beige p-10 rounded-2xl text-center border-2 border-dashed border-gray-400/50">
+                        <i class="fas fa-folder-open text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600">Belum ada laporan yang masuk.</p>
                     </div>
                 @endforelse
             </div>
@@ -287,4 +293,4 @@
 
     @vite('resources/js/admin.js')
 </body>
-</html>
+

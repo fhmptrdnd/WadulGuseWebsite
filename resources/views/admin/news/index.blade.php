@@ -12,6 +12,7 @@
             theme: {
                 extend: {
                     colors: {
+                        'page-bg-start': '#ec4899',
                         'beige-main': '#eaddc5',
                         'beige-dark': '#d3c0b0',
                         'btn-maroon': '#803558',
@@ -42,7 +43,7 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-slate-800 p-6 md:p-10 font-sans">
+<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24">
 
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
