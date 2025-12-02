@@ -25,25 +25,21 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        /* Custom Scrollbar untuk Modal */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #d3c0b0; /* Warna beige gelap sesuai tema */
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #803558; /* Warna maroon saat hover */
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d3c0b0; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #803558; }
+
+        /* Pagination Style */
+        .dark-pagination nav div[class*="flex"] { justify-content: center; }
+        .dark-pagination span[aria-current="page"] span { background-color: #803558 !important; color: white !important; border-color: #803558 !important; }
+        .dark-pagination a { background-color: rgba(255,255,255,0.2) !important; color: #1f2937 !important; border-color: rgba(0,0,0,0.1) !important; }
+        .dark-pagination a:hover { background-color: rgba(255,255,255,0.5) !important; }
+        .dark-pagination span { color: #4b5563 !important; }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24">
+<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24 p-6 md:p-10 font-sans">
 
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -58,13 +54,18 @@
                     </button>
 
                     <span class="bg-btn-maroon px-3 py-1 rounded-full shadow-sm border border-white/20">
-                        {{ $news->count() }} Total
-                    </span>
+                        {{ $news->total() }} Total </span>
                 </div>
             </div>
+
             <div class="relative w-full md:w-72">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3"><i class="fas fa-search text-gray-400"></i></span>
-                <input type="text" id="newsSearchInput" placeholder="Cari judul berita..." class="w-full py-2.5 pl-10 pr-4 text-sm text-gray-800 bg-white/90 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-btn-maroon placeholder-gray-500 shadow-sm">
+                <form action="{{ route('admin.news.index') }}" method="GET">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </span>
+                    <input type="text" name="search" id="newsSearchInput" value="{{ request('search') }}" placeholder="Cari judul & Enter..."
+                        class="w-full py-2.5 pl-10 pr-4 text-sm text-gray-800 bg-white/90 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-btn-maroon placeholder-gray-500 shadow-sm">
+                </form>
             </div>
         </div>
 
@@ -123,6 +124,10 @@
                     <div class="text-center py-12 text-gray-600">Belum ada berita.</div>
                 @endforelse
             </div>
+
+            <div class="mt-6 flex justify-end dark-pagination">
+                {{ $news->links() }}
+            </div>
         </div>
     </div>
 
@@ -133,82 +138,30 @@
                 <button onclick="closeModal('createNewsModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl"><i class="fas fa-times"></i></button>
                 <h3 class="text-2xl font-bold text-gray-800 mb-1">Tambah Berita Baru</h3>
                 <p class="text-sm text-gray-500 mb-6">Isi form di bawah untuk menambahkan berita baru</p>
-
                 <form method="POST" action="{{ route('admin.news.store') }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Judul Berita: <span class="text-red-500">*</span></label>
-                        <input type="text" name="judul_berita" required placeholder="Masukkan judul berita" class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-btn-green focus:bg-white placeholder-gray-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Konten Berita: <span class="text-red-500">*</span></label>
-                        <textarea name="konten" id="kontenCreate" rows="5" required placeholder="Tulis konten berita lengkap..." class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-btn-green focus:bg-white resize-none"></textarea>
-                        <div class="text-xs text-blue-500 mt-1 font-medium"><span id="charCountCreate">0</span> karakter</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Gambar Thumbnail (Opsional)</label>
-                        <input type="file" name="gambar_thumbnail" class="w-full text-sm text-gray-600 bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700">
-                    </div>
-                    <div class="flex gap-3 mt-6 pt-2">
-                        <button type="button" onclick="closeModal('createNewsModal')" class="w-1/2 py-2.5 rounded-lg border-2 border-gray-400 text-gray-700 font-bold hover:bg-gray-200">Batal</button>
-                        <button type="submit" class="w-1/2 py-2.5 rounded-lg bg-btn-green text-white font-bold hover:bg-emerald-500 shadow-md">Simpan Berita</button>
-                    </div>
+                    <div><label class="block text-sm font-semibold text-gray-700 mb-1">Judul Berita: <span class="text-red-500">*</span></label><input type="text" name="judul_berita" required placeholder="Masukkan judul berita" class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-btn-green focus:bg-white placeholder-gray-500"></div>
+                    <div><label class="block text-sm font-semibold text-gray-700 mb-1">Konten Berita: <span class="text-red-500">*</span></label><textarea name="konten" id="kontenCreate" rows="5" required placeholder="Tulis konten berita lengkap..." class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-btn-green focus:bg-white resize-none"></textarea><div class="text-xs text-blue-500 mt-1 font-medium"><span id="charCountCreate">0</span> karakter</div></div>
+                    <div><label class="block text-sm font-semibold text-gray-700 mb-1">Gambar Thumbnail (Opsional)</label><input type="file" name="gambar_thumbnail" class="w-full text-sm text-gray-600 bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700"></div>
+                    <div class="flex gap-3 mt-6 pt-2"><button type="button" onclick="closeModal('createNewsModal')" class="w-1/2 py-2.5 rounded-lg border-2 border-gray-400 text-gray-700 font-bold hover:bg-gray-200">Batal</button><button type="submit" class="w-1/2 py-2.5 rounded-lg bg-btn-green text-white font-bold hover:bg-emerald-500 shadow-md">Simpan Berita</button></div>
                 </form>
             </div>
         </div>
     </div>
 
     <div id="editNewsModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-
         <div class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm transition-opacity" onclick="closeModal('editNewsModal')"></div>
-
         <div class="flex min-h-full items-center justify-center p-4">
-
             <div class="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl bg-beige-main text-left shadow-2xl transition-all border-t-4 border-blue-500">
-
-                <div class="p-6 md:p-8 pb-0 shrink-0">
-                    <button onclick="closeModal('editNewsModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl transition-transform hover:rotate-90">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <h3 class="text-2xl font-bold text-gray-800">Edit Berita</h3>
-                </div>
-
+                <div class="p-6 md:p-8 pb-0 shrink-0"><button onclick="closeModal('editNewsModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl transition-transform hover:rotate-90"><i class="fas fa-times"></i></button><h3 class="text-2xl font-bold text-gray-800">Edit Berita</h3></div>
                 <div class="p-6 md:p-8 pt-4 overflow-y-auto custom-scrollbar">
-
                     <form id="editNewsForm" method="POST" action="" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        @method('PUT')
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Judul Berita: <span class="text-red-500">*</span></label>
-                            <input type="text" name="judul_berita" id="editJudul" required
-                                class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-blue-500 focus:bg-white placeholder-gray-500">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Konten Berita: <span class="text-red-500">*</span></label>
-                            <textarea name="konten" id="editKonten" rows="5" required
-                                class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-blue-500 focus:bg-white resize-none"></textarea>
-                            <div class="text-xs text-blue-500 mt-1 font-medium"><span id="charCountEdit">0</span> karakter</div>
-                        </div>
-
-                        <div id="currentImageContainer">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Thumbnail Saat Ini</label>
-                            <div class="w-full h-40 rounded-lg overflow-hidden border-2 border-slate-400/50 bg-gray-200 relative">
-                                <img id="editImagePreview" src="" class="w-full h-full object-cover absolute inset-0">
-                                <div id="noImagePlaceholder" class="hidden w-full h-full flex items-center justify-center text-gray-500 text-sm absolute inset-0">Tidak ada gambar</div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Ganti Thumbnail (Opsional)</label>
-                            <input type="file" name="gambar_thumbnail" class="w-full text-sm text-gray-600 bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700">
-                        </div>
-
-                        <div class="flex gap-3 mt-6 pt-2 pb-2">
-                            <button type="button" onclick="closeModal('editNewsModal')" class="w-1/2 py-2.5 rounded-lg border-2 border-gray-400 text-gray-700 font-bold hover:bg-gray-200 transition-all">Batal</button>
-                            <button type="submit" class="w-1/2 py-2.5 rounded-lg bg-blue-500 text-white font-bold hover:bg-blue-600 shadow-md transition-all">Simpan</button>
-                        </div>
+                        @csrf @method('PUT')
+                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">Judul Berita: <span class="text-red-500">*</span></label><input type="text" name="judul_berita" id="editJudul" required class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-blue-500 focus:bg-white placeholder-gray-500"></div>
+                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">Konten Berita: <span class="text-red-500">*</span></label><textarea name="konten" id="editKonten" rows="5" required class="w-full bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg px-4 py-2 text-gray-800 focus:outline-none focus:border-blue-500 focus:bg-white resize-none"></textarea><div class="text-xs text-blue-500 mt-1 font-medium"><span id="charCountEdit">0</span> karakter</div></div>
+                        <div id="currentImageContainer"><label class="block text-sm font-semibold text-gray-700 mb-1">Thumbnail Saat Ini</label><div class="w-full h-40 rounded-lg overflow-hidden border-2 border-slate-400/50 bg-gray-200 relative"><img id="editImagePreview" src="" class="w-full h-full object-cover absolute inset-0"><div id="noImagePlaceholder" class="hidden w-full h-full flex items-center justify-center text-gray-500 text-sm absolute inset-0">Tidak ada gambar</div></div></div>
+                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">Ganti Thumbnail (Opsional)</label><input type="file" name="gambar_thumbnail" class="w-full text-sm text-gray-600 bg-[#d3c0b0]/50 border-2 border-slate-400/50 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-700"></div>
+                        <div class="flex gap-3 mt-6 pt-2 pb-2"><button type="button" onclick="closeModal('editNewsModal')" class="w-1/2 py-2.5 rounded-lg border-2 border-gray-400 text-gray-700 font-bold hover:bg-gray-200 transition-all">Batal</button><button type="submit" class="w-1/2 py-2.5 rounded-lg bg-blue-500 text-white font-bold hover:bg-blue-600 shadow-md transition-all">Simpan</button></div>
                     </form>
                 </div>
             </div>
