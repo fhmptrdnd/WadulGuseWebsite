@@ -43,6 +43,18 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+     public function deactivate(User $user)
+    {
+        // Otorisasi: Mencegah admin menonaktifkan diri sendiri atau admin lain (walaupun filter query sudah ada)
+        if ($user->role === 'admin') {
+             return back()->with('error', "Tidak dapat menonaktifkan Administrator.");
+        }
+
+        $user->update(['is_active' => false]);
+
+        return back()->with('success', "Pengguna {$user->name} berhasil dinonaktifkan.");
+    }
+
     public function activate(User $user)
     {
         if ($user->role === 'admin') {

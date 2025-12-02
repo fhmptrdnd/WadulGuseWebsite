@@ -27,7 +27,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
 
-        /* Typography untuk konten berita agar enak dibaca */
         .prose-custom {
             line-height: 1.8;
             font-size: 1.05rem;
@@ -37,7 +36,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24 p-4 md:p-8">
+<body class="min-h-screen bg-gradient-to-b from-page-bg-start flex flex-col items-center justify-center via-[#be185d] to-slate-900 text-white pb-24 p-4 md:p-8">
 
     <div class="w-full max-w-4xl">
 

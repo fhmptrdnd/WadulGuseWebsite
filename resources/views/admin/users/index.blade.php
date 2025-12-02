@@ -42,7 +42,10 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-white drop-shadow-md mb-2">Kelola Masyarakat</h1>
-                <div class="flex gap-2 text-xs font-semibold text-white">
+                <div class="flex gap-2 text-xs font-semibold text-white items-center">
+                    <a href="{{ route('dashboard') }}" class="bg-white/90 hover:bg-white text-gray-800 px-4 py-2 rounded-full shadow-md flex items-center transition-all text-sm font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
+                    </a>
                     <span class="bg-btn-maroon px-3 py-1 rounded-full shadow-sm border border-white/20">
                         {{ $users->total() }} Total
                     </span>
@@ -50,6 +53,7 @@
                     <span class="bg-rose-500 px-3 py-1 rounded-full shadow-sm border border-white/20">Nonaktif</span>
                 </div>
             </div>
+
 
             <form action="{{ route('admin.users.index') }}" method="GET" class="w-full md:w-auto flex flex-col md:flex-row gap-2">
 
@@ -98,7 +102,7 @@
                             <th scope="col" class="px-6 py-4 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-300/50">
+                    {{-- <tbody class="divide-y divide-gray-300/50">
                         @foreach($users as $user)
                         <tr class="hover:bg-white/40 transition-colors group">
                             <td class="px-6 py-4 align-middle">
@@ -135,18 +139,69 @@
                             </td>
                         </tr>
                         @endforeach
+                    </tbody> --}}
+                    <tbody class="divide-y divide-gray-300/50">
+                        @foreach($users as $user)
+                        <tr class="hover:bg-white/40 transition-colors group">
+                            <td class="px-6 py-4 align-middle">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-btn-maroon text-white flex items-center justify-center text-xs font-bold">
+                                        {{ substr($user->name, 0, 1) }}
+                                    </div>
+                                    <div class="flex flex-col justify-center">
+                                        <span class="text-sm font-bold text-gray-900 leading-tight">{{ $user->name }}</span>
+                                        <span class="text-xs text-blue-600/80 font-medium mt-0.5">
+                                            {{ isset($user->username) ? '@'.$user->username : '-' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="px-6 py-4 align-middle font-mono text-gray-700">{{ $user->nik }}</td>
+
+                            <td class="px-6 py-4 align-middle text-gray-700">{{ $user->email }}</td>
+
+                            <td class="px-6 py-4 align-middle text-center">
+                                @if($user->is_active)
+                                    <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-1 rounded-full border border-green-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Aktif
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-[11px] font-bold px-2.5 py-1 rounded-full border border-gray-300">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Nonaktif
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td class="px-6 py-4 align-middle text-center">
+                                <form method="POST"
+                                    action="{{ $user->is_active ? route('admin.users.deactivate', $user->id) : route('admin.users.activate', $user->id) }}">
+                                    @csrf
+                                    @method('PUT')
+
+                                    @if($user->is_active)
+                                        <button type="submit"
+                                                onclick="return confirm('Yakin ingin menonaktifkan user {{ $user->name }}?')"
+                                                class="w-32 bg-transparent border border-status-pink text-status-pink hover:bg-status-pink hover:text-white transition-all font-semibold rounded-lg text-xs px-3 py-2 shadow-sm group-hover:shadow-md">
+                                            <i class="fas fa-ban mr-1"></i> Nonaktifkan
+                                        </button>
+                                    @else
+                                        <button type="submit"
+                                                onclick="return confirm('Yakin ingin mengaktifkan user {{ $user->name }}?')"
+                                                class="w-32 bg-transparent border border-status-green text-status-green hover:bg-status-green hover:text-white transition-all font-semibold rounded-lg text-xs px-3 py-2 shadow-sm group-hover:shadow-md">
+                                            <i class="fas fa-check mr-1"></i> Aktifkan
+                                        </button>
+                                    @endif
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
 
             <div class="mt-6 flex justify-end dark-pagination">
                 {{ $users->links() }}
-            </div>
-
-            <div class="mt-8 pt-4 border-t border-beige-dark/30">
-                <a href="{{ route('dashboard') }}" class="inline-flex items-center text-gray-600 hover:text-btn-maroon font-medium transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
-                </a>
             </div>
         </div>
     </div>
