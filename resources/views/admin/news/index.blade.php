@@ -42,7 +42,7 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-slate-800 p-6 md:p-10 font-sans">
+<body class="min-h-screen bg-linear-to-br from-pink-500 via-purple-500 to-slate-800 p-6 md:p-10 font-sans">
 
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">

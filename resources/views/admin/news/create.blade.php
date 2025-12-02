@@ -32,7 +32,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-slate-800 flex items-center justify-center p-4">
+<body class="min-h-screen bg-linear-to-br from-pink-500 via-purple-500 to-slate-800 flex items-center justify-center p-4">
 
     <div class="w-full max-w-lg relative z-10">
 
