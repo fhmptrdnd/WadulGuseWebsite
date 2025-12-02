@@ -12,6 +12,7 @@
             theme: {
                 extend: {
                     colors: {
+                        'page-bg-start': '#ec4899',
                         'page-dark': '#1e293b',
                         'card-beige': '#eaddc5',
                         'accent-pink': '#fb7185',
@@ -28,31 +29,40 @@
         .line-clamp-3 {
             display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
         }
+
+        /* Pagination Style (Sama seperti Admin) */
+        .dark-pagination nav div[class*="flex"] { justify-content: center; }
+        .dark-pagination span[aria-current="page"] span { background-color: #fb7185 !important; color: white !important; border-color: #fb7185 !important; }
+        .dark-pagination a { background-color: rgba(255,255,255,0.2) !important; color: white !important; border-color: rgba(255,255,255,0.2) !important; }
+        .dark-pagination a:hover { background-color: rgba(255,255,255,0.4) !important; }
+        .dark-pagination span { color: rgba(255,255,255,0.8) !important; background-color: transparent !important; }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-[#4c1d95] to-[#1e293b] p-4 md:p-8">
+<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24 p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto">
 
         <div class="bg-card-beige rounded-xl p-4 md:p-5 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg mb-8 relative z-10">
 
             <a href="{{ route('dashboard') }}" class="bg-white border border-gray-400 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-semibold flex items-center shadow-sm transition-transform hover:-translate-x-1 whitespace-nowrap">
-                <i class="fas fa-arrow-left mr-2"></i> Kembali
+                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
             </a>
 
             <h1 class="text-xl md:text-2xl font-bold text-gray-800 tracking-wide hidden md:block">Berita Terkini</h1>
 
             <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                 <div class="relative w-full md:w-64 group">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <i class="fas fa-search text-gray-400 group-focus-within:text-accent-pink transition-colors"></i>
-                    </span>
-                    <input type="text" id="searchNewsPublic" placeholder="Cari berita..."
-                        class="w-full py-2 pl-10 pr-4 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-pink focus:border-transparent shadow-inner transition-all">
+                    <form action="{{ route('news.index') }}" method="GET">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-search text-gray-400 group-focus-within:text-accent-pink transition-colors"></i>
+                        </span>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari berita & Enter..."
+                            class="w-full py-2 pl-10 pr-4 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-pink focus:border-transparent shadow-inner transition-all">
+                    </form>
                 </div>
 
                 <span class="bg-accent-pink text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md whitespace-nowrap text-center">
-                    <span id="newsCountDisplay">{{ $news->count() }}</span> Berita
+                    {{ $news->total() }} Berita
                 </span>
             </div>
         </div>
@@ -104,12 +114,10 @@
 
         </div>
 
-        <div id="noSearchResult" class="hidden flex-col items-center justify-center py-20 text-center">
-            <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm mb-4">
-                <i class="fas fa-search text-3xl text-white/50"></i>
+        <div class="mt-8 px-4 py-3 flex justify-center">
+            <div class="dark-pagination">
+                {{ $news->links() }}
             </div>
-            <h3 class="text-white text-xl font-bold mb-2">Berita tidak ditemukan</h3>
-            <p class="text-white/60">Coba kata kunci lain.</p>
         </div>
 
     </div>

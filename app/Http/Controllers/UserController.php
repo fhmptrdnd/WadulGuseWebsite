@@ -7,23 +7,40 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Hanya tampilkan user biasa, bukan admin lain
-        $users = User::where('role', 'user')->latest()->paginate(20);
-        return view('admin.users.index', compact('users'));
-    }
+        // 1. Mulai Query: Hanya user biasa
+        $query = User::where('role', 'user')->latest();
 
-    public function deactivate(User $user)
-    {
-        // Otorisasi: Mencegah admin menonaktifkan diri sendiri atau admin lain (walaupun filter query sudah ada)
-        if ($user->role === 'admin') {
-             return back()->with('error', "Tidak dapat menonaktifkan Administrator.");
+        // 2. Logika Searching Terpusat
+        if ($request->has('search') && $request->search != null) {
+            $search = $request->search;
+            $filter = $request->filter; // Ambil nilai dropdown (name, nik, atau email)
+
+            $query->where(function($q) use ($search, $filter) {
+                // Jika user memilih filter spesifik
+                if ($filter === 'nik') {
+                    $q->where('nik', 'like', "%{$search}%");
+                }
+                elseif ($filter === 'email') {
+                    $q->where('email', 'like', "%{$search}%");
+                }
+                elseif ($filter === 'name') {
+                    $q->where('name', 'like', "%{$search}%");
+                }
+                // Jika tidak ada filter (default), cari di semua kolom
+                else {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('nik', 'like', "%{$search}%");
+                }
+            });
         }
 
-        $user->update(['is_active' => false]);
+        // 3. Paginate dengan query string agar search tidak hilang saat pindah page
+        $users = $query->paginate(20)->withQueryString();
 
-        return back()->with('success', "Pengguna {$user->name} berhasil dinonaktifkan.");
+        return view('admin.users.index', compact('users'));
     }
 
     public function activate(User $user)

@@ -30,7 +30,7 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-slate-800 flex items-center justify-center p-4 md:p-8">
+<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24 p-4 md:p-8">
 
     <div class="w-full max-w-6xl">
 

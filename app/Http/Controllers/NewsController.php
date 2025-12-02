@@ -12,11 +12,22 @@ class NewsController extends Controller
 {
     // View User
     // Menampilkan daftar semua berita (semua dianggap published)
-    public function index()
+    public function index(Request $request)
     {
-        $news = News::with('admin')
-                    ->orderByDesc('tanggal_dibuat')
-                    ->get();
+        // 1. Query Dasar
+        $query = News::with('admin')->orderByDesc('tanggal_dibuat');
+
+        // 2. Logic Searching (Server Side)
+        if ($request->has('search') && $request->search != null) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('judul_berita', 'like', "%{$search}%")
+                  ->orWhere('konten', 'like', "%{$search}%");
+            });
+        }
+
+        // 3. Paginate + Query String
+        $news = $query->paginate(6)->withQueryString();
 
         return view('news.index', compact('news'));
     }
@@ -33,9 +44,21 @@ class NewsController extends Controller
 
     // Admin View
 
-    public function adminIndex()
-    {
-        $news = News::with('admin')->orderByDesc('tanggal_dibuat')->get();
+    public function adminIndex(Request $request )    {
+        $query = News::with('admin')->orderByDesc('tanggal_dibuat');
+
+        // 2. Logic Searching (Server Side)
+        if ($request->has('search') && $request->search != null) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('judul_berita', 'like', "%{$search}%")
+                  ->orWhere('konten', 'like', "%{$search}%");
+            });
+        }
+
+        // 3. Paginate + Query String
+        $news = $query->paginate(10)->withQueryString();
+
         return view('admin.news.index', compact('news'));
     }
 

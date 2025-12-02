@@ -1,96 +1,116 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('User Dashboard Script Loaded');
+    console.log('User Script Loaded Correctly');
 
+    // 1. OPEN VIEW MODAL (FROM LIST CLICK)
+    window.openViewModal = function(card) {
+        const d = card.dataset;
 
-    // 1. Live Search Logic
-    const searchInput = document.getElementById('searchReportInput');
-    const reportItems = document.querySelectorAll('.report-item');
-    const noResultState = document.getElementById('noResultState');
+        // Set Content
+        document.getElementById('viewTitle').textContent = d.title;
+        document.getElementById('viewDate').textContent = d.date;
+        document.getElementById('viewCategory').textContent = d.category;
+        document.getElementById('viewLocation').textContent = d.location;
+        document.getElementById('viewDesc').textContent = d.desc;
 
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            let hasResults = false;
+        // Set Status Badge
+        const badge = document.getElementById('viewStatusBadge');
+        badge.textContent = d.status;
+        badge.className = "absolute bottom-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md uppercase";
+        if(d.status === 'pending') badge.classList.add('bg-orange-500');
+        else if(d.status === 'verified') badge.classList.add('bg-blue-500');
+        else if(d.status === 'on_progress') badge.classList.add('bg-indigo-500');
+        else if(d.status === 'done') badge.classList.add('bg-green-500');
+        else badge.classList.add('bg-red-500');
 
-            reportItems.forEach(item => {
-                const title = item.querySelector('.report-title').textContent.toLowerCase();
-                const desc = item.querySelector('.report-desc').textContent.toLowerCase();
-                const status = item.querySelector('.report-status').textContent.toLowerCase();
-
-                // Cari berdasarkan Judul, Deskripsi, atau Status
-                if (title.includes(searchTerm) || desc.includes(searchTerm) || status.includes(searchTerm)) {
-                    item.style.display = 'block';
-                    hasResults = true;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            // Tampilkan pesan "Tidak Ditemukan" jika hasil 0
-            if (!hasResults && searchTerm !== '') {
-                noResultState.classList.remove('hidden');
-            } else {
-                noResultState.classList.add('hidden');
-            }
-        });
-    }
-
-    // 1. Notifikasi Floating
-    const notifModal = document.getElementById('notificationModal');
-    window.toggleNotification = function() {
-        if (notifModal.classList.contains('hidden')) {
-            notifModal.classList.remove('hidden');
-            setTimeout(() => {
-                notifModal.classList.remove('scale-90', 'opacity-0');
-                notifModal.classList.add('scale-100', 'opacity-100');
-            }, 10);
+        // Handle Photo
+        const photoImg = document.getElementById('viewPhoto');
+        const noPhoto = document.getElementById('viewNoPhoto');
+        if (d.photo && d.photo !== '') {
+            photoImg.src = d.photo;
+            photoImg.classList.remove('hidden');
+            noPhoto.classList.add('hidden');
         } else {
-            notifModal.classList.remove('scale-100', 'opacity-100');
-            notifModal.classList.add('scale-90', 'opacity-0');
-            setTimeout(() => {
-                notifModal.classList.add('hidden');
-            }, 300);
+            photoImg.classList.add('hidden');
+            noPhoto.classList.remove('hidden');
         }
+
+        // Handle Feedback
+        const feedbackSec = document.getElementById('viewFeedbackSection');
+        if (d.feedback && d.feedback !== '') {
+            feedbackSec.classList.remove('hidden');
+            document.getElementById('viewFeedback').textContent = `"${d.feedback}"`;
+
+            const adminPhotoCont = document.getElementById('viewAdminPhotoContainer');
+            if (d.adminPhoto && d.adminPhoto !== '') {
+                adminPhotoCont.classList.remove('hidden');
+                document.getElementById('viewAdminPhoto').src = d.adminPhoto;
+                document.getElementById('viewAdminPhotoLink').href = d.adminPhoto;
+            } else {
+                adminPhotoCont.classList.add('hidden');
+            }
+        } else {
+            feedbackSec.classList.add('hidden');
+        }
+
+        // Handle Actions (Only if Pending)
+        const actionBtns = document.getElementById('viewActionButtons');
+        if (d.status === 'pending') {
+            actionBtns.classList.remove('hidden');
+            actionBtns.classList.add('flex'); // Pastikan flex agar layout rapi
+
+            // Bind Edit Button
+            const btnEdit = document.getElementById('btnEditFromView');
+            btnEdit.onclick = function(e) {
+                e.stopPropagation(); // Mencegah bubble event
+                closeModal('viewReportModal');
+
+                // Populate & Open Edit Modal
+                populateEditModal(d);
+            };
+
+            // Bind Delete Form
+            const formDelete = document.getElementById('formDeleteFromView');
+            formDelete.action = d.deleteUrl;
+        } else {
+            actionBtns.classList.add('hidden');
+            actionBtns.classList.remove('flex');
+        }
+
+        openModal('viewReportModal');
     };
 
-    // 2. Modal Open/Close
-    window.openModal = function(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-    };
+    // Helper: Isi Form Edit
+    function populateEditModal(d) {
+        document.getElementById('editTitle').value = d.title;
+        document.getElementById('editDescription').value = d.desc;
+        document.getElementById('editLocation').value = d.location;
+        document.getElementById('editCategory').value = d.category;
+        document.getElementById('editReportForm').action = d.editUrl;
 
-    window.closeModal = function(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    };
-
-    // 3. Edit Modal with Photo Preview
-    window.openEditModal = function(button) {
-        // Ambil data
-        const id = button.getAttribute('data-id');
-        const title = button.getAttribute('data-title');
-        const desc = button.getAttribute('data-desc');
-        const loc = button.getAttribute('data-loc');
-        const cat = button.getAttribute('data-cat');
-        const url = button.getAttribute('data-url');
-        const photoUrl = button.getAttribute('data-photo');
-
-        // Isi Form
-        document.getElementById('editTitle').value = title;
-        document.getElementById('editDescription').value = desc;
-        document.getElementById('editLocation').value = loc;
-        document.getElementById('editCategory').value = cat;
-        document.getElementById('editReportForm').action = url;
-
-        // Handle Photo Preview
         const photoContainer = document.getElementById('editPhotoContainer');
         const photoImg = document.getElementById('editPhotoPreview');
-
-        if (photoUrl && photoUrl !== '') {
-            photoImg.src = photoUrl;
+        if (d.photo && d.photo !== '') {
+            photoImg.src = d.photo;
             photoContainer.classList.remove('hidden');
         } else {
             photoContainer.classList.add('hidden');
         }
-
         openModal('editReportModal');
+    }
+
+    // 2. GENERIC MODAL LOGIC
+    window.openModal = function(id) { document.getElementById(id).classList.remove('hidden'); };
+    window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); };
+
+    // 3. NOTIFICATION TOGGLE
+    const notifModal = document.getElementById('notificationModal');
+    window.toggleNotification = function() {
+        if (notifModal.classList.contains('hidden')) {
+            notifModal.classList.remove('hidden');
+            setTimeout(() => notifModal.classList.remove('scale-90', 'opacity-0'), 10);
+        } else {
+            notifModal.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => notifModal.classList.add('hidden'), 300);
+        }
     };
 });

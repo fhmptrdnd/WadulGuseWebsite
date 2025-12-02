@@ -12,6 +12,7 @@
             theme: {
                 extend: {
                     colors: {
+                        'page-bg-start': '#ec4899',
                         'page-dark': '#1e293b',
                         'card-beige': '#eaddc5',    // Warna Beige Kartu
                         'accent-pink': '#fb7185',   // Warna Aksen
@@ -36,7 +37,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-[#4c1d95] to-[#1e293b] p-4 md:p-8 flex justify-center">
+<body class="min-h-screen bg-gradient-to-b from-page-bg-start via-[#be185d] to-slate-900 text-white pb-24 p-4 md:p-8">
 
     <div class="w-full max-w-4xl">
 
